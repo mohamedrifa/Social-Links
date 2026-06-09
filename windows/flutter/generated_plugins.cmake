@@ -3,16 +3,8 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  connectivity_plus
-  desktop_webview_window
   file_selector_windows
   flutter_secure_storage_windows
-<<<<<<< HEAD
-  share_plus
-  url_launcher_windows
-  window_to_front
-=======
->>>>>>> 3cec3a54965e27429ff751f3e70650260904a6d2
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

@@ -14,22 +14,6 @@ dependencies:
   flutter_secure_storage: ^10.3.1
   http: ^1.6.0
   image_picker: ^1.1.2
-<<<<<<< HEAD
-  dio: ^5.9.2
-  shared_preferences: ^2.5.5
-  cached_network_image: ^3.4.1
-  share_plus: ^13.1.0
-  url_launcher: ^6.3.2
-  flutter_facebook_auth: ^7.1.7
-  twitter_login: ^4.4.2
-  oauth1: ^2.1.0
-  http: ^1.6.0
-  flutter_secure_storage: ^10.3.1
-  connectivity_plus: ^6.1.0
-  flutter_web_auth_2: ^5.0.3
-=======
-
->>>>>>> 3cec3a54965e27429ff751f3e70650260904a6d2
 dev_dependencies:
   flutter_test:
     sdk: flutter
