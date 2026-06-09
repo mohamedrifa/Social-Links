@@ -66,7 +66,7 @@ class TwitterService {
           ),
         );
 
-    final accessToken = result?.accessToken;
+    final accessToken = result.accessToken;
     if (accessToken == null || accessToken.isEmpty) {
       throw const AuthConfigurationException('X did not return an access token.');
     }
@@ -75,8 +75,8 @@ class TwitterService {
     await _oauthService.saveAccount(
       account: account,
       accessToken: accessToken,
-      refreshToken: result?.refreshToken,
-      tokenExpiresAt: result?.accessTokenExpirationDateTime,
+      refreshToken: result.refreshToken,
+      tokenExpiresAt: result.accessTokenExpirationDateTime,
     );
 
     return account;
@@ -142,7 +142,7 @@ class TwitterService {
       ),
     );
 
-    final refreshedToken = result?.accessToken;
+    final refreshedToken = result.accessToken;
     if (refreshedToken == null || refreshedToken.isEmpty) {
       return null;
     }
@@ -153,8 +153,8 @@ class TwitterService {
       await _oauthService.saveAccount(
         account: restoredAccount,
         accessToken: refreshedToken,
-        refreshToken: result?.refreshToken ?? refreshToken,
-        tokenExpiresAt: result?.accessTokenExpirationDateTime,
+        refreshToken: result.refreshToken ?? refreshToken,
+        tokenExpiresAt: result.accessTokenExpirationDateTime,
       );
     }
 
