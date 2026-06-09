@@ -9,11 +9,14 @@ import 'oauth_service.dart';
 class InstagramService {
   InstagramService({
     required OAuthService oauthService,
+    Future<String?> Function()? pageAccessTokenProvider,
     http.Client? httpClient,
   })  : _oauthService = oauthService,
+        _pageAccessTokenProvider = pageAccessTokenProvider,
         _httpClient = httpClient ?? http.Client();
 
   final OAuthService _oauthService;
+  final Future<String?> Function()? _pageAccessTokenProvider;
   final http.Client _httpClient;
 
   static const graphBaseUrl = String.fromEnvironment(
@@ -22,30 +25,34 @@ class InstagramService {
   );
   static const instagramBusinessAccountId =
       String.fromEnvironment('INSTAGRAM_BUSINESS_ACCOUNT_ID');
+  static const facebookPageId = String.fromEnvironment('FACEBOOK_PAGE_ID');
 
   Future<SocialAccount?> restoreAccount() {
     return _oauthService.restoreAccount(SocialPlatform.instagram);
   }
 
   Future<void> connectFromFacebookAccount() async {
-    final facebookToken =
-        await _oauthService.getAccessToken(SocialPlatform.facebook);
-    if (facebookToken == null || facebookToken.isEmpty) {
+    final accessToken = await _resolveMetaAccessToken();
+    if (accessToken == null || accessToken.isEmpty) {
       return;
     }
 
-    if (instagramBusinessAccountId.isEmpty) {
+    final account = instagramBusinessAccountId.isNotEmpty
+        ? SocialAccount(
+            platform: SocialPlatform.instagram,
+            id: instagramBusinessAccountId,
+            displayName: 'Instagram business account',
+            connectedAt: DateTime.now(),
+          )
+        : await _discoverInstagramAccount(accessToken);
+
+    if (account == null) {
       return;
     }
 
     await _oauthService.saveAccount(
-      account: SocialAccount(
-        platform: SocialPlatform.instagram,
-        id: instagramBusinessAccountId,
-        displayName: 'Instagram business account',
-        connectedAt: DateTime.now(),
-      ),
-      accessToken: facebookToken,
+      account: account,
+      accessToken: accessToken,
     );
   }
 
@@ -53,9 +60,16 @@ class InstagramService {
     final caption = payload.text.trim();
     final imageUrl = payload.publicImageUrl;
 
-    if (instagramBusinessAccountId.isEmpty) {
+    final account = await _oauthService.restoreStoredAccount(
+      SocialPlatform.instagram,
+    );
+    final accountId = instagramBusinessAccountId.isNotEmpty
+        ? instagramBusinessAccountId
+        : account?.id;
+
+    if (accountId == null || accountId.isEmpty) {
       throw const InstagramPostException(
-        'Missing INSTAGRAM_BUSINESS_ACCOUNT_ID.',
+        'Connect Instagram from Accounts before posting.',
       );
     }
 
@@ -73,7 +87,7 @@ class InstagramService {
     }
 
     final createResponse = await _httpClient.post(
-      Uri.parse('$graphBaseUrl/$instagramBusinessAccountId/media'),
+      Uri.parse('$graphBaseUrl/$accountId/media'),
       body: {
         'image_url': imageUrl,
         if (caption.isNotEmpty) 'caption': caption,
@@ -94,7 +108,7 @@ class InstagramService {
     }
 
     final publishResponse = await _httpClient.post(
-      Uri.parse('$graphBaseUrl/$instagramBusinessAccountId/media_publish'),
+      Uri.parse('$graphBaseUrl/$accountId/media_publish'),
       body: {
         'creation_id': creationId,
         'access_token': accessToken,
@@ -109,6 +123,56 @@ class InstagramService {
 
   Future<void> signOut() {
     return _oauthService.clearAccount(SocialPlatform.instagram);
+  }
+
+  Future<String?> _resolveMetaAccessToken() async {
+    final pageToken = await _pageAccessTokenProvider?.call();
+    if (pageToken != null && pageToken.isNotEmpty) {
+      return pageToken;
+    }
+
+    return _oauthService.getAccessToken(SocialPlatform.facebook);
+  }
+
+  Future<SocialAccount?> _discoverInstagramAccount(String accessToken) async {
+    if (facebookPageId.isEmpty) {
+      throw const InstagramPostException(
+        'Missing FACEBOOK_PAGE_ID. Add your Facebook Page ID to discover Instagram.',
+      );
+    }
+
+    final response = await _httpClient.get(
+      Uri.parse('$graphBaseUrl/$facebookPageId').replace(
+        queryParameters: {
+          'fields': 'instagram_business_account{id,username,name,profile_picture_url}',
+          'access_token': accessToken,
+        },
+      ),
+    );
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw InstagramPostException(_readGraphError(response));
+    }
+
+    final decoded = jsonDecode(response.body) as Map<String, dynamic>;
+    final instagram =
+        decoded['instagram_business_account'] as Map<String, dynamic>?;
+    if (instagram == null) {
+      throw const InstagramPostException(
+        'No Instagram professional account is connected to this Facebook Page.',
+      );
+    }
+
+    return SocialAccount(
+      platform: SocialPlatform.instagram,
+      id: instagram['id'] as String? ?? '',
+      displayName:
+          instagram['name'] as String? ?? instagram['username'] as String? ??
+              'Instagram business account',
+      username: instagram['username'] as String?,
+      avatarUrl: instagram['profile_picture_url'] as String?,
+      connectedAt: DateTime.now(),
+    );
   }
 
   String _readGraphError(http.Response response) {

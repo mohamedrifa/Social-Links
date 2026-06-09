@@ -69,7 +69,10 @@ class _SocialLinkAppState extends State<SocialLinkApp> {
     _oauthService = OAuthService();
     _twitterService = TwitterService(oauthService: _oauthService);
     _facebookService = FacebookService(oauthService: _oauthService);
-    _instagramService = InstagramService(oauthService: _oauthService);
+    _instagramService = InstagramService(
+      oauthService: _oauthService,
+      pageAccessTokenProvider: _facebookService.getPageAccessToken,
+    );
     _postingService = SocialPostingService(
       twitterService: _twitterService,
       facebookService: _facebookService,
@@ -148,17 +151,7 @@ class _SocialLinkAppState extends State<SocialLinkApp> {
   Future<SocialAccount?> _connectFacebook() async {
     final account = await _facebookService.signIn();
     if (account != null && mounted) {
-      await _instagramService.connectFromFacebookAccount();
-      final instagramAccount = await _instagramService.restoreAccount();
-
-      if (!mounted) {
-        return account;
-      }
-
-      setState(() {
-        _accounts[SocialPlatform.facebook] = account;
-        _accounts[SocialPlatform.instagram] = instagramAccount;
-      });
+      setState(() => _accounts[SocialPlatform.facebook] = account);
     }
 
     return account;
@@ -208,6 +201,7 @@ class _SocialLinkAppState extends State<SocialLinkApp> {
       await _connectFacebook();
     }
 
+    await _facebookService.requestPublishingPermissions();
     await _instagramService.connectFromFacebookAccount();
     final instagramAccount = await _instagramService.restoreAccount();
 
@@ -217,7 +211,7 @@ class _SocialLinkAppState extends State<SocialLinkApp> {
 
     if (instagramAccount == null) {
       throw Exception(
-        'Instagram needs a connected Facebook Page and INSTAGRAM_BUSINESS_ACCOUNT_ID.',
+        'Instagram needs a Facebook Page connected to an Instagram professional account. Add FACEBOOK_PAGE_ID when running the app, or provide INSTAGRAM_BUSINESS_ACCOUNT_ID.',
       );
     }
 

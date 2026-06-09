@@ -25,15 +25,8 @@ class FacebookService {
 
   Future<SocialAccount?> signIn() async {
     final result = await FacebookAuth.instance.login(
-      permissions: const [
-        'public_profile',
-        'email',
-        'pages_show_list',
-        'pages_read_engagement',
-        'pages_manage_posts',
-        'instagram_basic',
-        'instagram_content_publish',
-      ],
+      permissions: const ['public_profile'],
+      loginBehavior: LoginBehavior.webOnly,
     );
 
     if (result.status != LoginStatus.success || result.accessToken == null) {
@@ -52,10 +45,7 @@ class FacebookService {
 
     final picture = profile['picture'] as Map<String, dynamic>?;
     final pictureData = picture?['data'] as Map<String, dynamic>?;
-    final userAccessToken = result.accessToken!.tokenString;
-    final publishingAccessToken = await _resolvePublishingAccessToken(
-      userAccessToken,
-    );
+    final accessToken = result.accessToken!.tokenString;
 
     final account = SocialAccount(
       platform: SocialPlatform.facebook,
@@ -68,7 +58,7 @@ class FacebookService {
 
     await _oauthService.saveAccount(
       account: account,
-      accessToken: publishingAccessToken,
+      accessToken: accessToken,
     );
 
     return account;
@@ -120,6 +110,50 @@ class FacebookService {
   Future<void> signOut() async {
     await FacebookAuth.instance.logOut();
     await _oauthService.clearAccount(SocialPlatform.facebook);
+  }
+
+  Future<String?> getPageAccessToken() async {
+    final userAccessToken =
+        await _oauthService.getAccessToken(SocialPlatform.facebook);
+    if (userAccessToken == null || userAccessToken.isEmpty) {
+      return null;
+    }
+
+    return _resolvePublishingAccessToken(userAccessToken);
+  }
+
+  Future<void> requestPublishingPermissions() async {
+    final result = await FacebookAuth.instance.login(
+      permissions: const [
+        'pages_show_list',
+        'pages_read_engagement',
+        'pages_manage_posts',
+        'instagram_basic',
+        'instagram_content_publish',
+      ],
+      loginBehavior: LoginBehavior.webOnly,
+    );
+
+    if (result.status != LoginStatus.success || result.accessToken == null) {
+      throw FacebookAuthException(
+        result.message ?? 'Meta publishing permissions were not granted.',
+      );
+    }
+
+    final storedAccount =
+        await _oauthService.restoreStoredAccount(SocialPlatform.facebook);
+    if (storedAccount == null) {
+      return;
+    }
+
+    final pageToken = await _resolvePublishingAccessToken(
+      result.accessToken!.tokenString,
+    );
+
+    await _oauthService.saveAccount(
+      account: storedAccount,
+      accessToken: pageToken,
+    );
   }
 
   Future<String> _resolvePublishingAccessToken(String userAccessToken) async {
