@@ -12,24 +12,18 @@ class PostCreationScreen extends ConsumerStatefulWidget {
   const PostCreationScreen({super.key});
 
   @override
-  ConsumerState<PostCreationScreen> createState() =>
-      _PostCreationScreenState();
+  ConsumerState<PostCreationScreen> createState() => _PostCreationScreenState();
 }
 
-class _PostCreationScreenState
-    extends ConsumerState<PostCreationScreen> {
-
+class _PostCreationScreenState extends ConsumerState<PostCreationScreen> {
   final formKey = GlobalKey<FormState>();
 
-  final descriptionController =
-      TextEditingController();
+  final descriptionController = TextEditingController();
 
   File? image;
 
   Future<void> pickImage() async {
-    final result = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
-    );
+    final result = await ImagePicker().pickImage(source: ImageSource.gallery);
 
     if (result != null) {
       setState(() {
@@ -141,11 +135,9 @@ class _PostCreationScreenState
 
   Future<void> submit() async {
     if (image == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select image'),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please select image')));
       return;
     }
 
@@ -161,9 +153,7 @@ class _PostCreationScreenState
 
     if (selectedPlatforms.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Select at least one platform'),
-        ),
+        const SnackBar(content: Text('Select at least one platform')),
       );
       return;
     }
@@ -178,13 +168,9 @@ class _PostCreationScreenState
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-
               const Text(
                 'Ready to Publish',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
 
               const SizedBox(height: 20),
@@ -194,51 +180,37 @@ class _PostCreationScreenState
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () async {
-
                       Navigator.pop(context);
 
                       switch (platform) {
                         case 'instagram':
-                          await SocialShareService
-                              .openInstagram(
+                          await SocialShareService.openInstagram(
                             image!,
                             caption,
                           );
                           break;
 
                         case 'facebook':
-                          await SocialShareService
-                              .openFacebook(
+                          await SocialShareService.openFacebook(
                             image!,
                             caption,
                           );
                           break;
 
                         case 'telegram':
-                          await SocialShareService
-                              .openTelegram(
-                            caption,
-                          );
+                          await SocialShareService.openTelegram(caption);
                           break;
 
                         case 'whatsapp':
-                          await SocialShareService
-                              .openWhatsApp(
-                            caption,
-                          );
+                          await SocialShareService.openWhatsApp(caption);
                           break;
 
                         case 'twitter':
-                          await SocialShareService
-                              .openTwitter(
-                            caption,
-                          );
+                          await SocialShareService.openTwitter(caption);
                           break;
                       }
                     },
-                    child: Text(
-                      'Open ${platform.toUpperCase()}',
-                    ),
+                    child: Text('Open ${platform.toUpperCase()}'),
                   ),
                 ),
               ),
@@ -251,79 +223,52 @@ class _PostCreationScreenState
 
   @override
   Widget build(BuildContext context) {
-
-    final platforms =
-        ref.watch(postProvider);
+    final platforms = ref.watch(postProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "Create Post",
-        ),
-      ),
+      appBar: AppBar(title: const Text("Create Post")),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(
           key: formKey,
           child: Column(
             children: [
-
-              ImagePickerCard(
-                image: image,
-                onTap: pickImage,
-              ),
+              ImagePickerCard(image: image, onTap: pickImage),
 
               const SizedBox(height: 24),
 
               TextFormField(
-                controller:
-                    descriptionController,
+                controller: descriptionController,
                 maxLines: 5,
-                validator:
-                    Validators.description,
-                decoration:
-                    const InputDecoration(
-                  labelText:
-                      "Description",
-                  border:
-                      OutlineInputBorder(),
+                validator: Validators.description,
+                decoration: const InputDecoration(
+                  labelText: "Description",
+                  border: OutlineInputBorder(),
                 ),
               ),
 
               const SizedBox(height: 24),
 
               Align(
-                alignment:
-                    Alignment.centerLeft,
+                alignment: Alignment.centerLeft,
                 child: Text(
                   "Share To",
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium,
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
               ),
 
               const SizedBox(height: 12),
 
               ...platforms
-                  .where((e) =>
-                      e.hasCredential)
+                  .where((e) => e.hasCredential)
                   .map(
-                    (platform) =>
-                        PlatformCheckboxTile(
-                      title:
-                          platform.name,
-                      value:
-                          platform.selected,
+                    (platform) => PlatformCheckboxTile(
+                      title: platform.name,
+                      value: platform.selected,
                       onChanged: (_) {
                         ref
-                            .read(
-                              postProvider
-                                  .notifier,
-                            )
-                            .togglePlatform(
-                              platform.id,
-                            );
+                            .read(postProvider.notifier)
+                            .togglePlatform(platform.id);
                       },
                     ),
                   ),
@@ -335,9 +280,7 @@ class _PostCreationScreenState
                 height: 55,
                 child: FilledButton(
                   onPressed: submit,
-                  child: const Text(
-                    "Publish Post",
-                  ),
+                  child: const Text("Publish Post"),
                 ),
               ),
             ],
