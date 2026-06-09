@@ -5,6 +5,7 @@
 import FlutterMacOS
 import Foundation
 
+<<<<<<< HEAD
 import connectivity_plus
 import desktop_webview_window
 import facebook_auth_desktop
@@ -31,4 +32,16 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   TwitterLoginPlugin.register(with: registry.registrar(forPlugin: "TwitterLoginPlugin"))
   UrlLauncherPlugin.register(with: registry.registrar(forPlugin: "UrlLauncherPlugin"))
   WindowToFrontPlugin.register(with: registry.registrar(forPlugin: "WindowToFrontPlugin"))
+=======
+import facebook_auth_desktop
+import file_selector_macos
+import flutter_appauth
+import flutter_secure_storage_darwin
+
+func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
+  FacebookAuthDesktopPlugin.register(with: registry.registrar(forPlugin: "FacebookAuthDesktopPlugin"))
+  FileSelectorPlugin.register(with: registry.registrar(forPlugin: "FileSelectorPlugin"))
+  FlutterAppauthPlugin.register(with: registry.registrar(forPlugin: "FlutterAppauthPlugin"))
+  FlutterSecureStorageDarwinPlugin.register(with: registry.registrar(forPlugin: "FlutterSecureStorageDarwinPlugin"))
+>>>>>>> 3cec3a54965e27429ff751f3e70650260904a6d2
 }

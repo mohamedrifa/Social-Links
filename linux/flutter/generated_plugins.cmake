@@ -6,8 +6,11 @@ list(APPEND FLUTTER_PLUGIN_LIST
   desktop_webview_window
   file_selector_linux
   flutter_secure_storage_linux
+<<<<<<< HEAD
   url_launcher_linux
   window_to_front
+=======
+>>>>>>> 3cec3a54965e27429ff751f3e70650260904a6d2
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
