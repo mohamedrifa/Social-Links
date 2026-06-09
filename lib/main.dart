@@ -20,13 +20,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
       title: 'Social Link',
+      debugShowCheckedModeBanner: false,
+      
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF246BFD),
-        ),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF246BFD)),
         filledButtonTheme: FilledButtonThemeData(
           style: FilledButton.styleFrom(
             minimumSize: const Size.fromHeight(48),
@@ -82,16 +81,11 @@ class _SocialLinkAppState extends State<SocialLinkApp> {
   @override
   Widget build(BuildContext context) {
     if (_isRestoring) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     final pages = [
-      ComposeScreen(
-        accounts: _accounts,
-        postingService: _postingService,
-      ),
+      ComposeScreen(accounts: _accounts, postingService: _postingService),
       AccountScreen(
         accounts: _accounts,
         loadingPlatform: _loadingPlatform,
@@ -101,13 +95,11 @@ class _SocialLinkAppState extends State<SocialLinkApp> {
     ];
 
     return Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: pages,
-      ),
+      body: IndexedStack(index: _selectedIndex, children: pages),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
-        onDestinationSelected: (index) => setState(() => _selectedIndex = index),
+        onDestinationSelected: (index) =>
+            setState(() => _selectedIndex = index),
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.edit_outlined),
@@ -201,9 +193,9 @@ class _SocialLinkAppState extends State<SocialLinkApp> {
         return;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error.toString())),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(error.toString())));
     } finally {
       if (mounted) {
         setState(() => _loadingPlatform = null);
