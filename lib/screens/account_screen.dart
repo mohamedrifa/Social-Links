@@ -75,56 +75,73 @@ class _AccountTile extends StatelessWidget {
 
     return DecoratedBox(
       decoration: BoxDecoration(
+        color: colorScheme.surface,
         border: Border.all(color: colorScheme.outlineVariant),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        leading: CircleAvatar(
-          backgroundColor: connected
-              ? colorScheme.primaryContainer
-              : colorScheme.surfaceContainerHighest,
-          backgroundImage:
-              account?.avatarUrl != null ? NetworkImage(account!.avatarUrl!) : null,
-          child: account?.avatarUrl == null
-              ? Icon(
-                  switch (platform) {
-                    SocialPlatform.facebook => Icons.facebook_rounded,
-                    SocialPlatform.instagram => Icons.camera_alt_outlined,
-                    SocialPlatform.twitter => Icons.close_rounded,
-                  },
-                )
-              : null,
-        ),
-        title: Text(
-          account?.displayName ?? platform.displayName,
-          style: const TextStyle(fontWeight: FontWeight.w800),
-        ),
-        subtitle: Text(
-          connected
-              ? [
-                  if (account!.username != null) '@${account!.username}',
-                  if (account!.email != null) account!.email!,
-                  'Connected ${_formatDate(account!.connectedAt)}',
-                ].join(' | ')
-              : _disconnectedMessage(platform),
-        ),
-        trailing: connected
-            ? TextButton(
-                onPressed: isLoading ? null : onSignOut,
-                child: const Text('Sign out'),
-              )
-            : FilledButton(
-                onPressed: isLoading ? null : onConnect,
-                child: isLoading
-                    ? const SizedBox.square(
-                        dimension: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Text(_connectLabel(platform)),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            CircleAvatar(
+              backgroundColor: connected
+                  ? colorScheme.primaryContainer
+                  : colorScheme.surfaceContainerHighest,
+              backgroundImage: account?.avatarUrl != null
+                  ? NetworkImage(account!.avatarUrl!)
+                  : null,
+              child: account?.avatarUrl == null
+                  ? Icon(_platformIcon(platform))
+                  : null,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    account?.displayName ?? platform.displayName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontWeight: FontWeight.w800),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    connected
+                        ? [
+                            if (account!.username != null) '@${account!.username}',
+                            if (account!.email != null) account!.email!,
+                            'Connected ${_formatDate(account!.connectedAt)}',
+                          ].join(' | ')
+                        : _disconnectedMessage(platform),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: colorScheme.onSurfaceVariant),
+                  ),
+                ],
               ),
+            ),
+            const SizedBox(width: 10),
+            _AccountActionButton(
+              connected: connected,
+              isLoading: isLoading,
+              connectLabel: _connectLabel(platform),
+              onConnect: onConnect,
+              onSignOut: onSignOut,
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  IconData _platformIcon(SocialPlatform platform) {
+    return switch (platform) {
+      SocialPlatform.facebook => Icons.facebook_rounded,
+      SocialPlatform.instagram => Icons.camera_alt_outlined,
+      SocialPlatform.twitter => Icons.close_rounded,
+    };
   }
 
   String _connectLabel(SocialPlatform platform) {
@@ -148,5 +165,44 @@ class _AccountTile extends StatelessWidget {
     final month = value.month.toString().padLeft(2, '0');
     final day = value.day.toString().padLeft(2, '0');
     return '${value.year}-$month-$day';
+  }
+}
+
+class _AccountActionButton extends StatelessWidget {
+  const _AccountActionButton({
+    required this.connected,
+    required this.isLoading,
+    required this.connectLabel,
+    required this.onConnect,
+    required this.onSignOut,
+  });
+
+  final bool connected;
+  final bool isLoading;
+  final String connectLabel;
+  final Future<void> Function() onConnect;
+  final Future<void> Function() onSignOut;
+
+  @override
+  Widget build(BuildContext context) {
+    if (connected) {
+      return TextButton(
+        onPressed: isLoading ? null : onSignOut,
+        child: const Text('Sign out'),
+      );
+    }
+
+    return SizedBox(
+      width: 104,
+      child: FilledButton(
+        onPressed: isLoading ? null : onConnect,
+        child: isLoading
+            ? const SizedBox.square(
+                dimension: 18,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : Text(connectLabel),
+      ),
+    );
   }
 }
