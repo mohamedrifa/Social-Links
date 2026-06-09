@@ -16,6 +16,29 @@
 	<string>6.0</string>
 	<key>CFBundleName</key>
 	<string>social_link</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>sociallink</string>
+				<string>fb2507971272989322</string>
+			</array>
+		</dict>
+	</array>
+	<key>FacebookAppID</key>
+	<string>2507971272989322</string>
+	<key>FacebookClientToken</key>
+	<string>REPLACE_WITH_FACEBOOK_CLIENT_TOKEN</string>
+	<key>FacebookDisplayName</key>
+	<string>Social Link</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>fbapi</string>
+		<string>fb-messenger-share-api</string>
+	</array>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Select images to preview with your social post.</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
