@@ -34,8 +34,28 @@
 	<string>Social Link</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
+		<string>facebook</string>
+		<string>fb</string>
+		<string>fbauth</string>
+		<string>fbauth2</string>
 		<string>fbapi</string>
 		<string>fb-messenger-share-api</string>
+		<string>fbshareextension</string>
+		<string>twitter</string>
+		<string>x</string>
+		<string>instagram</string>
+		<string>whatsapp</string>
+		<string>tg</string>
+		<string>linkedin</string>
+		<string>pinterest</string>
+		<string>tiktok</string>
+		<string>snapchat</string>
+		<string>reddit</string>
+		<string>youtube</string>
+		<string>wechat</string>
+		<string>weixin</string>
+		<string>mailto</string>
+		<string>sms</string>
 	</array>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Select images to preview with your social post.</string>
