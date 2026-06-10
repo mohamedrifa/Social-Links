@@ -32,7 +32,7 @@ android {
             mapOf(
                 "appAuthRedirectScheme" to "sociallink",
                 "facebookAppId" to "2507971272989322",
-                "facebookClientToken" to "REPLACE_WITH_FACEBOOK_CLIENT_TOKEN",
+                "facebookClientToken" to "89f815071b948d4e6189fe188b50af02",
                 "facebookLoginProtocolScheme" to "fb2507971272989322",
             )
         )
