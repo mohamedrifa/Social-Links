@@ -28,14 +28,6 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-        manifestPlaceholders.putAll(
-            mapOf(
-                "appAuthRedirectScheme" to "sociallink",
-                "facebookAppId" to "2507971272989322",
-                "facebookClientToken" to "REPLACE_WITH_FACEBOOK_CLIENT_TOKEN",
-                "facebookLoginProtocolScheme" to "fb2507971272989322",
-            )
-        )
     }
 
     buildTypes {
